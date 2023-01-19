@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Compilador Pascal</title>
+    <link rel="stylesheet" href="index.css" />
+  </head>
+  <body style="padding: 20px">
+    <form style="width: 100%; height: 700px">
+      <button
+        type="text"
+        id="clear"
+        style="padding: 8px 16px; align-self: end; height: fit-content"
+      >
+        Limpar
+      </button>
+      <button
+        id="submit"
+        type="submit"
+        style="padding: 8px 16px; align-self: end; height: fit-content"
+      >
+        Compilar
+      </button>
+      <div class="edit">
+        <div class="line-numbers">
+          <span></span>
+        </div>
+        <textarea required rows="50"></textarea>
+      </div>
+    </form>
+
+    <div id="modal">
+      <div class="content">
+        <div>
+          <h2>Erros de compilação</h2>
+          <div id="errors"></div>
+        </div>
+        <div>
+          <h3>Análise léxica</h3>
+          <div id="lexical">
+            <h4 class="table-head">Lexema</h4>
+            <h4 class="table-head">Token</h4>
+            <h4 class="table-head">Linha</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="bundle.js"></script>
+  </body>
+</html>

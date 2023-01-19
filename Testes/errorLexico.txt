@@ -1,0 +1,26 @@
+program ADD_NUMEROS;
+{ Comentario aberto
+
+var
+
+X : integer;
+
+A : integer;
+
+B : integer;
+
+begin
+
+     writeln ('entre com o primeiro valor: ');
+
+readln(A);
+
+writeln ('entre com o segundo valor: ');
+
+readln(B);
+
+X := A + B;
+
+writeln('A soma e = ', X);
+
+end.

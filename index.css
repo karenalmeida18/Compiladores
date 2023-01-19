@@ -1,0 +1,152 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  border-radius: 6px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: lightgray;
+  border: 1px solid rgb(190, 190, 190);
+  border-radius: 6px;
+}
+
+button {
+  cursor: pointer;
+  border-radius: 4px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  width: 200px;
+}
+
+#clear {
+  background-color: transparent;
+  border: 1px solid #6272a4;
+  color: #6272a4;
+}
+
+#submit {
+  background-color: #6272a4;
+  color: white;
+  margin-left: 8px;
+}
+
+label {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+h2 {
+  font-size: 20px;
+}
+
+#modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  padding-top: 10px;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
+
+.content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 10px 20px;
+  border-radius: 4px;
+  border: 1px solid lightgray;
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  white-space: pre-line;
+  max-height: 95%;
+  overflow-y: scroll;
+}
+
+#errors {
+  color: red;
+  border-bottom: 1px solid lightgray;
+}
+
+p {
+  margin: 0;
+  border: 1px solid lightgray;
+  padding: 8px;
+}
+
+#lexical {
+  border: 1px solid lightgray;
+  border-radius: 6px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  max-height: 240px;
+  overflow-y: scroll;
+}
+
+.table-head {
+  padding: 4px;
+  text-align: center;
+  border: 1px solid lightgray;
+}
+
+.edit {
+  display: inline-flex;
+  gap: 10px;
+  font-family: monospace;
+  line-height: 21px;
+  background: #282a36;
+  border-radius: 2px;
+  height: 85%;
+  width: 100%;
+  padding: 20px 10px;
+  overflow-y: scroll;
+}
+
+textarea {
+  line-height: 21px;
+  padding: 0;
+  border: 0;
+  background: #282a36;
+  color: #fff;
+  width: 100%;
+  outline: none;
+  height: 100vh;
+  resize: none;
+  margin-left: 8px;
+}
+
+.line-numbers {
+  width: 20px;
+  line-height: 21px;
+  text-align: right;
+}
+
+.line-numbers span {
+  counter-increment: linenumber;
+}
+
+.line-numbers span::before {
+  content: counter(linenumber);
+  display: block;
+  color: #506882;
+  font-size: 16px;
+}
