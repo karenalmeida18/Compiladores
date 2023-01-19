@@ -15,6 +15,6 @@ A aplicação foi desenvolvida usando JavaScript puro (sem auxilio de biblioteca
   - *parser.js*: função responsável por fazer a análise sintática, recebe os tokens classificados e itera por eles verificando se cada token está seguindo uma ordem lógica. O retorna da função é uma lista de erros, vazia caso não haja nenhum erro durante compilação, ou objetos com o erro indicado e a linha que ocorreu o erro.
   
 A interface do projeto foi construída em html e css puros, com uma interface de editor para receber o código e devolver o resultado da análise para o usuário. Ao inserir o código na interface do editor, a função principal em "index.js" é chamada:
-  - *getAnalysisResult*: recebe o evento (texto do código), chama a função de análise léxica e organiza na interface o resultado da parte léxica. Guarda os tokens retornados e envia como parâmetro pra função parser, que retorna o resultado da análise sintática e a partir disso formata os erros pra mostrar na tela. 
+  - *getAnalysisResult*: recebe o evento (texto do código), chama a função de análise léxica e organiza na interface o resultado da parte léxica. Guarda os tokens retornados e envia como parâmetro pra função parser, que retorna o resultado da análise sintática e a partir disso formata os erros pra mostrar na tela.
 
 ## - Imagens da aplicação
