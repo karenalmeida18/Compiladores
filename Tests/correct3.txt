@@ -1,0 +1,18 @@
+procedure CALC_ADICAO(A, B : integer);
+var
+ Z : integer;
+begin
+ Z := A + B;
+ writeln(Z);
+end;
+var
+ X, Y, W, T : integer;
+begin
+ readln(X);
+ readln(Y);
+ Calc_Adicao(X,Y);
+ readln(W);
+ readln(T);
+ Calc_Adicao(W,T);
+ Calc_Adicao(6, 4);
+end.

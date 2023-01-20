@@ -1,10 +1,10 @@
-# REPOSITÓRIO COM TRABALHO FINAL DE COMPILADORES
+# TRABALHO FINAL DE COMPILADORES
 ### Gabriela Sinastre, Karen Almeida, Maykon Borges
 
 ## Como rodar
 Como usar a aplicação: 
   - Abrir o arquivo index.html no seu navegador;
-  - Inserir o código no editor da interface (na pasta "Testes" tem alguns códigos de exemplos);
+  - Inserir o código no editor da interface (na pasta "Tests" tem alguns códigos de exemplos);
   - Clicar em "compilar" para receber o resultado das análises.
   - Para fechar o resultado da compilação, clicar fora do modal que foi aberto com o resultado.
   - Para limpar o código e inserir um novo de forma rápida, clicar em "Limpar".
