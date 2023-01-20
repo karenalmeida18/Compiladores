@@ -79,7 +79,14 @@ function lexical(str) {
                 if (NumberHasMaxLength(char)) errors.push({ error: `"${char}" -> NUMERO PRECISA TER NO MÁXIMO 20 CARACTERES.`, line });
             }
             else if (isReserved(char)) tokensPatterns.push({ lexema: char, token: 'reserved', line });
-            else if (isSimbol(char)) tokensPatterns.push({ lexema: char, token: 'simbol', line });
+            else if (isSimbol(char)) {
+                let newChar = '';
+                if (char === ':' && tokens[i+1] === '=') {
+                    newChar = ':=';
+                    tokens.splice(i+1, 1);
+                }
+                tokensPatterns.push({ lexema: newChar || char, token: 'simbol', line });
+            }
             else if (isComment(char)) {
                 tokensPatterns.push({ lexema: char, token: 'comment', line });
                 if (!verifyCommentIsClosed(tokens)) errors.push({ error: `" ${char} " -> Comentário não foi fechado.`, line });

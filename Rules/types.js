@@ -6,6 +6,8 @@ module.exports = [
     'integer',
     'cardinal',
     'longint',
+    'real',
+    'boolean',
     'longword',
     'int64',
     'qword'
