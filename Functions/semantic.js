@@ -21,7 +21,7 @@ function verifyExpression(tokens, index, varsByType) {
     let nextTokenType = varsByType[nextToken?.lexema?.toLowerCase()];
 
     while (nextToken.lexema !== ';' && nextToken.token !== 'reserved') {
-        if (nextToken.token !== 'simbol' && nextTokenType !== prevTokenType) errors.push({ error: `Tipo ${nextTokenType} atribuido incorreto a variavel "${prevToken.lexema}" do tipo ${prevTokenType}`, line: prevToken.line });
+        if (nextToken.token !== 'simbol' && nextTokenType !== prevTokenType) errors.push({ error: `Variável ${nextToken.lexema} com o tipo ${nextTokenType} atribuido incorreto a variável "${prevToken.lexema}" do tipo ${prevTokenType}`, line: prevToken.line });
         nextTokenIndex++;
         nextToken = tokens[nextTokenIndex];
         if (nextToken?.token === 'id') nextTokenType = varsByType[nextToken?.lexema?.toLowerCase()];
