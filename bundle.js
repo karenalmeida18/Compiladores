@@ -1,5 +1,174 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 
+function getKeyByInput() {
+    const textInputUser = document.getElementById('text-input-user');
+
+    return new Promise((resolve) => {
+        textInputUser.addEventListener('keypress', event => {
+            let val = '';
+            if (event.key === 'Enter') val = event.target.value;
+            const values = val && val.split('\n');
+            const currentVal = values && values[values.length - 1];
+            if (currentVal) {
+                resolve(currentVal);
+            }
+        })
+    });
+}
+
+function getVarsToRead(tokens, index) {
+    const vars = [];
+    let nextIndex = index;
+    let nextToken = tokens[nextIndex];
+    while (nextToken.lexema !== ')') {
+        if (nextToken.token === 'id') vars.push(nextToken.lexema);
+        nextIndex++;
+        nextToken = tokens[nextIndex];
+    }
+    return vars;
+};
+
+async function readBlock(tokens) {
+    const textCode = document.getElementById('text-code');
+    let varsWithValue = {};
+    let varsToPrint = [];
+    let ignoreElse = false;
+
+    try {
+        for (let index = 0; index < tokens.length; index++) {
+            const { lexema } = tokens[index];
+            if (['write', 'writeln'].includes(lexema) && tokens[index + 1].lexema === '(') {
+                index = index + 2;
+                let nextToken = tokens[index];
+                let currentText = '';
+                while (nextToken.lexema !== ')' && (index < tokens.length)) {
+                    currentText = currentText.concat(`${nextToken.lexema} `);
+                    index++;
+                    nextToken = tokens[index];
+                }
+                varsToPrint = currentText?.replace(/'(.*?)'/, '')?.replace(/[\s]+/g, '').split(',');
+                if (varsToPrint) {
+                    varsToPrint.forEach((currentVar) => {
+                        const varToReplace = varsWithValue[currentVar.toLowerCase()];
+                        let textToReplace = currentText.match(/'(.*?)'/);
+                        if (textToReplace && varToReplace) currentText = textToReplace[0].concat(`, ${varToReplace}`);
+                        else if (varToReplace) currentText = currentText.replace(currentVar, varToReplace);
+                    })
+                }
+                const prevValue = textCode?.textContent || '';
+                textCode.innerHTML = prevValue.concat(currentText, '\n');
+            }
+
+            if (['read', 'readln'].includes(lexema) && tokens[index + 1].lexema === '(') {
+                index = index + 2;
+                const varsToRead = getVarsToRead(tokens, index) || [];
+                let val = '';
+
+                for await (let currVar of varsToRead) {
+                    val = await getKeyByInput();
+                    if (val) {
+                        varsWithValue = { ...varsWithValue, [currVar.toLowerCase()]: val };
+                    }
+                }
+            }
+
+            if (lexema === ':=') {
+                const prevIndex = index - 1;
+                const prevToken = tokens[prevIndex];
+                const result = [prevToken.lexema.toLowerCase()];
+                let expression = '';
+                let expressionResult = '';
+
+                let nextTokenValue = '';
+                let nextTokenSimbol = '';
+
+                index++;
+                let nextToken = tokens[index];
+                while ((nextToken.lexema !== ';' && nextToken.token !== 'reserved')) {
+                    if (index >= tokens.length) break;
+                    if (nextToken.token === 'id') {
+                        nextTokenValue = varsWithValue[nextToken.lexema.toLowerCase()] || 0;
+                        expression = expression.concat(`${nextTokenValue}`);
+                    }
+                    if (nextToken.token === 'simbol') {
+                        nextTokenSimbol = nextToken.lexema;
+                        expression = expression.concat(`${nextTokenSimbol}`);
+                    }
+                    if (nextToken.token === 'num') {
+                        expression = expression.concat(`${nextToken.lexema}`);
+                    }
+                    index++;
+                    nextToken = tokens[index];
+                }
+
+                expressionResult = eval(expression);
+                console.log({ expressionResult, result });
+                varsWithValue = { ...varsWithValue, [result]: expressionResult?.toString() };
+            }
+
+            if (lexema === 'if') {
+                let expression = '';
+
+                let nextToken = tokens[index];
+                while (nextToken.lexema !== 'then' && index < tokens.length) {
+                    if (nextToken.token === 'id') {
+                        nextTokenValue = varsWithValue[nextToken.lexema.toLowerCase()]
+                        expression = expression.concat(`${nextTokenValue}`);
+                    }
+                    if (nextToken.token === 'simbol') {
+                        nextTokenSimbol = nextToken.lexema;
+                        expression = expression.concat(`${nextTokenSimbol}`);
+                    }
+                    if (nextToken.token === 'num') {
+                        expression = expression.concat(`${nextToken.lexema}`);
+                    }
+                    index++;
+                    nextToken = tokens[index];
+                }
+                // ignore else, execute if
+                if (eval(expression)) {
+                    ignoreElse = true;
+                    continue;
+                }
+                // ignore if, go to else
+                else while (nextToken.lexema !== 'else') {
+                    index++;
+                    nextToken = tokens[index];
+                }
+            }
+
+            if (ignoreElse && lexema === 'else') {
+                index++;
+                nextToken = tokens[index];
+                if (nextToken.lexema === 'begin') {
+                    while (nextToken.lexema !== 'end') {
+                        index++;
+                        nextToken = tokens[index];
+                    }
+                    ignoreElse = false;
+                }
+                else if (nextToken.token === 'id') {
+                    while (nextToken.lexema !== ';' && nextToken.token !== 'reserved') {
+                        index++;
+                        nextToken = tokens[index];
+                    }
+                    ignoreElse = false;
+                }
+            }
+            console.log({ varsWithValue });
+        }
+    } catch (err) {
+        alert('Algo deu errado... Verifique se inseriu as entradas corretamente e tente novamente.');
+        document.getElementById('text-input-user').value = '';
+    }
+}
+
+
+module.exports = {
+    readBlock,
+};
+},{}],2:[function(require,module,exports){
+
 const reserved = require('../Rules/reserved');
 const simbols = require('../Rules/simbols');
 const comments = require('../Rules/comments');
@@ -15,7 +184,7 @@ function splitCode(code) {
 
     separateLines.forEach((line, index) => {
         // Separa o código por quebra de linha e pelos simbolos
-        let currentTokens = line.split(/(\s+|[+, -, /, *, **, (, ), <, >, <>, <=, =>, :=, =, ;, ,, //, {, }, :, ., ', "])/);
+        let currentTokens = line.split(/([\s-]+|[+, -, /, *, **, (, ), <, >, <>, <=, =>, :=, =, ;, ,, //, {, }, :, ., ', "])/);
         // Filtra espaços em brancos e vazio
         currentTokens = currentTokens.filter((token) => token && !(/(\s)/g).test(token));
         // Adiciona os tokens em array por linha
@@ -58,6 +227,20 @@ function NumberHasMaxLength(codeSplited) {
     return codeSplited.length > 20;
 };
 
+function getComment(codeSplitedArray, i) {
+    console.log({ codeSplitedArray });
+    let comment = ''
+    let index = i;
+    let code = codeSplitedArray[index];
+    while (code !== '}' && index < codeSplitedArray.length) {
+        comment = comment.concat(`${code} `);
+        index++;
+        code = codeSplitedArray[index];
+    }
+
+    return { comment, index };
+}
+
 function verifyCommentIsClosed(codeSplitedArray) {
     const allCommentsOpened = codeSplitedArray.filter((code) => code === '{');
     const allCommentsClosed = codeSplitedArray.filter((code) => code === '}');
@@ -82,15 +265,18 @@ function lexical(str) {
             else if (isReserved(char)) tokensPatterns.push({ lexema: char, token: 'reserved', line });
             else if (isSimbol(char)) {
                 let newChar = '';
-                if (char === ':' && tokens[i+1] === '=') {
+                if (char === ':' && tokens[i + 1] === '=') {
                     newChar = ':=';
-                    tokens.splice(i+1, 1);
+                    tokens.splice(i + 1, 1);
                 }
+                if (char === 'div') newChar = '/';
                 tokensPatterns.push({ lexema: newChar || char, token: 'simbol', line });
             }
             else if (isComment(char)) {
-                tokensPatterns.push({ lexema: char, token: 'comment', line });
+                // tokensPatterns.push({ lexema: char, token: 'comment', line });
                 if (!verifyCommentIsClosed(tokens)) errors.push({ error: `" ${char} " -> Comentário não foi fechado.`, line });
+                const { index } = getComment(tokens, i);
+                i = index;
             }
             else if (isIdentifier(char)) {
                 tokensPatterns.push({ lexema: char, token: 'id', line });
@@ -106,7 +292,7 @@ function lexical(str) {
 
 
 module.exports = lexical;
-},{"../Rules/comments":4,"../Rules/reserved":5,"../Rules/simbols":6}],2:[function(require,module,exports){
+},{"../Rules/comments":5,"../Rules/reserved":6,"../Rules/simbols":7}],3:[function(require,module,exports){
 const types = require('../Rules/types');
 const { verifyDuplicateIds, verifyExpression, verifyUnusedVars } = require('./semantic');
 
@@ -404,7 +590,6 @@ function parser(tokens) {
                     if (newError) errors.push({ error: newError, line: newLine });
                     declaredGlobalVarsByType = { ...declaredGlobalVarsByType, ...varsByType };
                     const { errors: newErrors } = verifyUnusedVars(tokens, declaredGlobalVariables);
-                    console.log({ newErrors });
                     if (newErrors.length > 0) newErrors.forEach((err) => errors.push(err));
                     break;
                 }
@@ -479,7 +664,7 @@ function parser(tokens) {
 
 module.exports = parser;
 
-},{"../Rules/types":7,"./semantic":3}],3:[function(require,module,exports){
+},{"../Rules/types":8,"./semantic":4}],4:[function(require,module,exports){
 function verifyDuplicateIds(tokens, ids) {
     const duplicateId = ids.find((id, index) => ids.indexOf(id) !== index);
     if (duplicateId) {
@@ -502,19 +687,20 @@ function verifyExpression(tokens, index, varsByType) {
     let nextToken = tokens[nextTokenIndex];
     let nextTokenType = varsByType[nextToken?.lexema?.toLowerCase()];
 
-    while (nextToken.lexema !== ';' && nextTokenIndex < tokens.length) {
+    while (nextToken.lexema !== ';' && nextToken.token !== 'reserved') {
         if (nextToken.token !== 'simbol' && nextTokenType !== prevTokenType) errors.push({ error: `Tipo ${nextTokenType} atribuido incorreto a variavel "${prevToken.lexema}" do tipo ${prevTokenType}`, line: prevToken.line });
         nextTokenIndex++;
         nextToken = tokens[nextTokenIndex];
-        if (nextToken.token === 'id') nextTokenType = varsByType[nextToken?.lexema?.toLowerCase()];
+        if (nextToken?.token === 'id') nextTokenType = varsByType[nextToken?.lexema?.toLowerCase()];
     }
+
+    if (nextToken.lexema !== ';') errors.push({ error: `É esperado um ';' para encerrar a expressão "${nextToken.lexema}" for recebido`, line: nextToken.line });
 
     return { errors };
 
 }
 
 function verifyUnusedVars(tokens, ids) {
-    console.log({ ids });
     const errors = [];
     ids.forEach((id) => {
         const occurences = [];
@@ -524,7 +710,6 @@ function verifyUnusedVars(tokens, ids) {
             }
         });
 
-     console.log({ occurences, id });
      if (occurences.length === 1) {
         const { line, lexema } = tokens.find(({ lexema }) => lexema.toLowerCase() === id);
         errors.push({ error: `Variavél ${lexema} declarada, mas nunca utilizada`, line });
@@ -539,20 +724,20 @@ module.exports = {
     verifyExpression,
     verifyUnusedVars,
 }
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 module.exports = [
     '//', '{', '}'
 ];
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 module.exports = [
     'program', 'procedure', 'var', 'int', 'boolean', 'read',
     'write', 'true', 'false', 'begin', 'end', 'if', 'then',
-    'else', 'while', 'do', 'div', 'not', 'writeln', 'readln',
+    'else', 'while', 'do', 'not', 'writeln', 'readln',
     'integer'
 ];
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 module.exports = [
     '>', '<', '<>', '<=', '>=', ':=', '=', ';', ',', '(', ')', ':',
     '+',
@@ -561,10 +746,11 @@ module.exports = [
     '*',
     '.',
     "'",
+    "div",
     '"',
     '**',
 ];
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 module.exports = [
     'byte',
     'shortint',
@@ -579,16 +765,17 @@ module.exports = [
     'int64',
     'qword'
 ];
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 const lexical = require('./Functions/lexical');
 const parser = require('./Functions/parser');
+const { readBlock } = require('./Functions/generatorCode');
 
 function getInputValue(e) {
-    return document.querySelector('textarea').value || e;
+    return document.getElementById('text-edit').value || e;
 }
 
 function clearInput() {
-    document.querySelector('textarea').value = '';
+    document.getElementById('text-edit').value = '';
 }
 
 function openModal() {
@@ -632,10 +819,27 @@ function getAnalysisResult(e) {
     const str = getInputValue(e);
     const { tokensPatterns, errors: lexicalErrors } = lexical(str);
     const parserErrors = parser(tokensPatterns);
+    const errors = lexicalErrors.concat(parserErrors);
 
     appendLexicalMessages(tokensPatterns);
-    appendErrors(lexicalErrors.concat(parserErrors));
+    appendErrors(errors);
     openModal();
+    if (errors.length === 0) readBlock(tokensPatterns);
+    else document.getElementById('generate-code').style.display = 'none';
+}
+
+function clearProgram() {
+    const allText = document.querySelectorAll('p');
+    const allTextArr = [...allText];
+    allTextArr.forEach((text) => text.remove());
+    document.getElementById('text-input-user').value = '';
+    document.getElementById('text-code').textContent = '';
+}
+
+// Recompila o programa
+function executeAgain() {
+    clearProgram();
+    getAnalysisResult();
 }
 
 
@@ -645,19 +849,18 @@ window.onclick = function (event) {
 
     if (event.target === modal) {
         modal.style.display = "none";
-        const allText = document.querySelectorAll('p');
-        const allTextArr = [...allText];
-        allTextArr.forEach((text) => text.remove());
+        clearProgram();
     }
 }
 
 // Invoka as funções de limpar e compilar
 document.getElementById('clear').addEventListener('click', clearInput);
 document.querySelector('form').addEventListener('submit', getAnalysisResult);
+document.getElementById('execute').addEventListener('click', executeAgain);
 
 
 // Adicionar numerador no editor
-const textarea = document.querySelector('textarea');
+const textarea = document.getElementById('text-edit');
 const lineNumbers = document.querySelector('.line-numbers');
 
 textarea.addEventListener('keyup', event => {
@@ -667,4 +870,4 @@ textarea.addEventListener('keyup', event => {
         .fill('<span></span>')
         .join('')
 })
-},{"./Functions/lexical":1,"./Functions/parser":2}]},{},[8]);
+},{"./Functions/generatorCode":1,"./Functions/lexical":2,"./Functions/parser":3}]},{},[9]);

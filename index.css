@@ -8,6 +8,11 @@ body {
     font-family: Arial, Helvetica, sans-serif;
 }
 
+header {
+  display: flex;
+  justify-content: space-between;
+}
+
 ::-webkit-scrollbar {
   width: 8px;
   border-radius: 6px;
@@ -31,6 +36,9 @@ button {
   font-weight: 700;
   margin-bottom: 8px;
   width: 200px;
+  background-color: transparent;
+  border: 1px solid #6272a4;
+  color: #6272a4;
 }
 
 #clear {
@@ -121,7 +129,7 @@ p {
   overflow-y: scroll;
 }
 
-textarea {
+.text-edit {
   line-height: 21px;
   padding: 0;
   border: 0;
@@ -149,4 +157,15 @@ textarea {
   display: block;
   color: #506882;
   font-size: 16px;
+}
+
+textarea {
+  width: 100%;
+}
+#text-input-user {
+  padding: 8px;
+}
+
+.code-title {
+  margin: -20px 0;
 }

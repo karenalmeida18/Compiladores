@@ -27,15 +27,35 @@
         <div class="line-numbers">
           <span></span>
         </div>
-        <textarea required rows="50"></textarea>
+        <textarea
+          class="text-edit"
+          id="text-edit"
+          required
+          rows="50"
+        ></textarea>
       </div>
     </form>
 
     <div id="modal">
       <div class="content">
         <div>
-          <h2>Compilação</h2>
+          <header>
+            <h3>Compilação</h3>
+            <button
+              type="text"
+              id="execute"
+            >
+              Executar novamente
+            </button>
+          </header>
           <div id="errors"></div>
+        </div>
+        <div id="generate-code">
+          <h3 class="code-title">Geração de código</h3>
+          <div id="code">
+            <div id="text-code"></div>
+            <textarea rows="5" id="text-input-user" autofocus></textarea>
+          </div>
         </div>
         <div>
           <h3>Análise léxica</h3>

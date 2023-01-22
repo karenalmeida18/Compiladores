@@ -1,18 +1,17 @@
-procedure CALC_ADICAO(A, B : integer);
+program EXEMPLO_WHILE;
 var
- Z : integer;
+ A, B, R, I : integer;
 begin
- Z := A + B;
- writeln(Z);
-end;
-var
- X, Y, W, T : integer;
-begin
- readln(X);
- readln(Y);
- Calc_Adicao(X,Y);
- readln(W);
- readln(T);
- Calc_Adicao(W,T);
- Calc_Adicao(6, 4);
+ while (I <= 5) do
+ begin
+ write('Entre um valor para A: ');
+ readln(A);
+ write('Entre um valor para B: ');
+ readln(B);
+ writeln;
+ R := A + B;
+ writeln('O resultado corresponde a: ',R);
+ writeln;
+ I := I + 1;
+ end;
 end.

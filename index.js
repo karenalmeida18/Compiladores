@@ -1,12 +1,13 @@
 const lexical = require('./Functions/lexical');
 const parser = require('./Functions/parser');
+const { readBlock } = require('./Functions/generatorCode');
 
 function getInputValue(e) {
-    return document.querySelector('textarea').value || e;
+    return document.getElementById('text-edit').value || e;
 }
 
 function clearInput() {
-    document.querySelector('textarea').value = '';
+    document.getElementById('text-edit').value = '';
 }
 
 function openModal() {
@@ -50,10 +51,27 @@ function getAnalysisResult(e) {
     const str = getInputValue(e);
     const { tokensPatterns, errors: lexicalErrors } = lexical(str);
     const parserErrors = parser(tokensPatterns);
+    const errors = lexicalErrors.concat(parserErrors);
 
     appendLexicalMessages(tokensPatterns);
-    appendErrors(lexicalErrors.concat(parserErrors));
+    appendErrors(errors);
     openModal();
+    if (errors.length === 0) readBlock(tokensPatterns);
+    else document.getElementById('generate-code').style.display = 'none';
+}
+
+function clearProgram() {
+    const allText = document.querySelectorAll('p');
+    const allTextArr = [...allText];
+    allTextArr.forEach((text) => text.remove());
+    document.getElementById('text-input-user').value = '';
+    document.getElementById('text-code').textContent = '';
+}
+
+// Recompila o programa
+function executeAgain() {
+    clearProgram();
+    getAnalysisResult();
 }
 
 
@@ -63,19 +81,18 @@ window.onclick = function (event) {
 
     if (event.target === modal) {
         modal.style.display = "none";
-        const allText = document.querySelectorAll('p');
-        const allTextArr = [...allText];
-        allTextArr.forEach((text) => text.remove());
+        clearProgram();
     }
 }
 
 // Invoka as funções de limpar e compilar
 document.getElementById('clear').addEventListener('click', clearInput);
 document.querySelector('form').addEventListener('submit', getAnalysisResult);
+document.getElementById('execute').addEventListener('click', executeAgain);
 
 
 // Adicionar numerador no editor
-const textarea = document.querySelector('textarea');
+const textarea = document.getElementById('text-edit');
 const lineNumbers = document.querySelector('.line-numbers');
 
 textarea.addEventListener('keyup', event => {

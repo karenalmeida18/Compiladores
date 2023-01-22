@@ -14,7 +14,7 @@ function splitCode(code) {
 
     separateLines.forEach((line, index) => {
         // Separa o código por quebra de linha e pelos simbolos
-        let currentTokens = line.split(/(\s+|[+, -, /, *, **, (, ), <, >, <>, <=, =>, :=, =, ;, ,, //, {, }, :, ., ', "])/);
+        let currentTokens = line.split(/([\s-]+|[+, -, /, *, **, (, ), <, >, <>, <=, =>, :=, =, ;, ,, //, {, }, :, ., ', "])/);
         // Filtra espaços em brancos e vazio
         currentTokens = currentTokens.filter((token) => token && !(/(\s)/g).test(token));
         // Adiciona os tokens em array por linha
@@ -57,6 +57,19 @@ function NumberHasMaxLength(codeSplited) {
     return codeSplited.length > 20;
 };
 
+function getComment(codeSplitedArray, i) {
+    let comment = ''
+    let index = i;
+    let code = codeSplitedArray[index];
+    while (code !== '}' && index < codeSplitedArray.length) {
+        comment = comment.concat(`${code} `);
+        index++;
+        code = codeSplitedArray[index];
+    }
+
+    return { comment, index };
+}
+
 function verifyCommentIsClosed(codeSplitedArray) {
     const allCommentsOpened = codeSplitedArray.filter((code) => code === '{');
     const allCommentsClosed = codeSplitedArray.filter((code) => code === '}');
@@ -81,15 +94,18 @@ function lexical(str) {
             else if (isReserved(char)) tokensPatterns.push({ lexema: char, token: 'reserved', line });
             else if (isSimbol(char)) {
                 let newChar = '';
-                if (char === ':' && tokens[i+1] === '=') {
+                if (char === ':' && tokens[i + 1] === '=') {
                     newChar = ':=';
-                    tokens.splice(i+1, 1);
+                    tokens.splice(i + 1, 1);
                 }
+                if (char === 'div') newChar = '/';
                 tokensPatterns.push({ lexema: newChar || char, token: 'simbol', line });
             }
             else if (isComment(char)) {
-                tokensPatterns.push({ lexema: char, token: 'comment', line });
+                // tokensPatterns.push({ lexema: char, token: 'comment', line });
                 if (!verifyCommentIsClosed(tokens)) errors.push({ error: `" ${char} " -> Comentário não foi fechado.`, line });
+                const { index } = getComment(tokens, i);
+                i = index;
             }
             else if (isIdentifier(char)) {
                 tokensPatterns.push({ lexema: char, token: 'id', line });
