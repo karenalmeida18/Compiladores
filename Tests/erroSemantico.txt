@@ -1,10 +1,8 @@
-program EXEMPLO_WHILE;
+program EXEMPLO_2;
 var
- A, R, I, Z : integer;
+ A, R, Z : integer;
  B: boolean;
 begin
- while (I <= 5) do
- begin
  write('Entre um valor para A: ');
  readln(A);
  write('Entre um valor para B: ');
@@ -13,6 +11,4 @@ begin
  R := A + B;
  writeln('O resultado corresponde a: ',R);
  writeln;
- I := I + 1;
- end;
 end.
